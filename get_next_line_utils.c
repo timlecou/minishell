@@ -1,59 +1,96 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tsarafia <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/11/19 13:57:29 by tsarafia          #+#    #+#             */
+/*   Updated: 2019/12/03 16:02:01 by tsarafia         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-int		ft_len(char *str)
+char	*ft_getline(char *str)
 {
-    int	i;
+	int		length;
+	int		i;
+	char	*line;
 
-    i = 0;
-    if (!str)
-        return (0);
-    while (str[i] != '\0')
-        i++;
-    return (i);
+	i = 0;
+	while (str[i] && str[i] != '\n')
+		i++;
+	length = i;
+	if (!(line = (char*)malloc(sizeof(char) * (length + 1))))
+		return (NULL);
+	i = 0;
+	while (i < length)
+	{
+		line[i] = str[i];
+		i++;
+	}
+	line[i] = '\0';
+	return (line);
 }
 
-char	*ft_cut_begin(char *str)
+char	*ft_getrest(char *str, int *empty_rest)
 {
-    int		i;
-    int		j;
-    char	*tmp;
+	char *rest;
 
-    i = 0;
-    j = 0;
-    while (str[j] != '\n' && str[j] != '\0')
-        j++;
-    if (!str)
-        return (NULL);
-    if (!(tmp = malloc(sizeof(char) * j + 1)))
-        return (NULL);
-    while (str[i] != '\n' && str[i] != '\0')
-    {
-        tmp[i] = str[i];
-        i++;
-    }
-    tmp[i] = '\0';
-    return (tmp);
+	*empty_rest = 0;
+	while (*str != '\0')
+	{
+		if (*str == '\n')
+		{
+			str++;
+			if (!(rest = (char*)malloc(sizeof(char) * ft_strlen(str) + 1)))
+				return (NULL);
+			rest = ft_strcpy(rest, str);
+			return (rest);
+		}
+		str++;
+	}
+	*empty_rest = 1;
+	return (NULL);
 }
 
-char	*ft_cut(char *str) {
-    char *res;
-    int i;
-    int j;
+char	*ft_strcpy(char *dest, char *src)
+{
+	int i;
 
-    i = 0;
-    j = 0;
-    if (!str)
-        return (NULL);
-    while (str[i] != '\n' && str[i] != '\0')
-        i++;
-    i++;
-    if (!(res = (char *) malloc(sizeof(char) * (ft_len(&str[i]) + 1))))
-        return (NULL);
-    while (str[i] != '\0') {
-        res[j] = str[i];
-        i++;
-        j++;
-    }
-    res[j] = '\0';
-    return (res);
+	i = 0;
+	while (src[i])
+	{
+		dest[i] = src[i];
+		i++;
+	}
+	dest[i] = src[i];
+	return (dest);
+}
+
+char	*ft_strjoin_gnl(char const *s1, char const *s2)
+{
+	char	*str1;
+	char	*str2;
+	char	*dest;
+	int		i;
+	int		j;
+
+	if (!s1 || !s2)
+		return (NULL);
+	str1 = (char*)s1;
+	str2 = (char*)s2;
+	i = -1;
+	j = -1;
+	if (!(dest = malloc(sizeof(char*) *
+	(ft_strlen(str1) + ft_strlen(str2) + 1))))
+		return (NULL);
+	while (str1[++i])
+		dest[i] = str1[i];
+	while (str2[++j])
+		dest[i + j] = str2[j];
+	dest[i + j] = '\0';
+	free(str1);
+	return (dest);
 }

@@ -2,28 +2,51 @@
 
 #include "minishell.h"
 
-void    ft_manage_line(char *line)
+void    ft_manage_line(char *line, t_env *env, char **envp)
 {
-    if (ft_strncmp(line, "exit", 4) == 0)
-        exit(EXIT_SUCCESS);
+    t_data  data;
+    int     i;
+
+    i = 0;
+    data = init_data_struct();
+    data.env = env;
+    data.cmd = ft_split(line, ';');
+    data.envp = envp;
+    data.nb_cmd = ft_count_commands(line, ';');
+    if (!(data.tab = (t_cmd*)malloc(sizeof(t_cmd) * (data.nb_cmd + 1))))
+        quit(0, "fail to allocate command array");
+    while (i < data.nb_cmd)
+    {
+	    ft_parsing(&data, i);
+	    ft_do_cmd(&data, i);
+        i++;
+    }
+    ft_free_data_struct(&data);
 }
 
-void    ft_minishell(void)
+void    ft_minishell(char **envp)
 {
     char    *line;
+    t_env   *env;
 
+    env = ft_fill_env_list(envp);
     line = NULL;
-    while (1)
+    ft_putstr("\033[0;34m🚨Bienvenu dans minishell !🚨\n\033[0;0m");
+    ft_putstr("\033[0;33m🁡➜ \033[0;0m");
+    while ((get_next_line(0, &line)) > 0)
     {
-        write(1, "$>", 2);
-        get_next_line(0, &line);
-		ft_manage_line(line);
+        ft_manage_line(line, env, envp);
+        free(line);
+        line = NULL;
+        ft_putstr("\033[0;33m🁡➜ \033[0;0m");
     }
+    ft_lstclear(&env, ft_del_elem);
 }
 
-int     main(void)
+int     main(int ac, char **av, char **envp)
 {
-    ft_minishell();
+    if (ac == 1)
+	    ft_minishell(envp);
     return (0);
 }
 
